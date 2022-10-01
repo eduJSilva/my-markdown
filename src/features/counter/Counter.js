@@ -1,67 +1,64 @@
-import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import {
-  decrement,
-  increment,
-  incrementByAmount,
-  incrementAsync,
-  incrementIfOdd,
-  selectCount,
-} from './counterSlice';
-import styles from './Counter.module.css';
+import React from "react";
+import styles from "./Counter.module.css";
+import { marked } from "marked";
+import {connect } from 'react-redux';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {solid} from '@fortawesome/fontawesome-svg-core/import.macro';
+//const element = <FontAwesomeIcon icon="fas fa-angle-double-right" />
 
-export function Counter() {
-  const count = useSelector(selectCount);
-  const dispatch = useDispatch();
-  const [incrementAmount, setIncrementAmount] = useState('2');
+const pencil = <FontAwesomeIcon icon={solid('pencil')} />
 
-  const incrementValue = Number(incrementAmount) || 0;
+export class Markdown extends React.Component {
 
-  return (
-    <div>
-      <div className={styles.row}>
-        <button
-          className={styles.button}
-          aria-label="Decrement value"
-          onClick={() => dispatch(decrement())}
-        >
-          -
-        </button>
-        <span className={styles.value}>{count}</span>
-        <button
-          className={styles.button}
-          aria-label="Increment value"
-          onClick={() => dispatch(increment())}
-        >
-          +
-        </button>
+  constructor(props) {
+    super(props);
+    this.state = {
+      input: this.props.counter.message,
+    };
+    this.handleChange = this.handleChange.bind(this);
+    this.markedUp = this.markedUp.bind(this);
+  }
+
+  handleChange(event) {
+    this.setState({ input: event.target.value });
+  }
+
+  markedUp(mensa) {
+    return { __html: marked.parse(mensa, { breaks: true }) };
+  };
+
+  render() {
+    return (
+      <div className="container">
+        <div class={styles.editor}>
+
+<div class="md-form mb-4 pink-textarea active-pink-textarea-2">
+  <div>
+  <label for="editor"><h1>Markdown Editor</h1></label>
+  </div>
+  <i>{pencil}</i>
+  <textarea id="editor"
+            defaultValue={this.props.counter.message}
+            onChange={this.handleChange} class={styles.textbox} rows="10"></textarea>
+
+</div>
+
+        </div>
+        <div class={styles.value} >
+          <h1 style={{color: "red", fontSize: 40}} className="brand">Markdown previewer</h1>
+          <div
+            id='preview'
+            dangerouslySetInnerHTML={this.markedUp(this.state.input)}
+          ></div>
+        </div>
       </div>
-      <div className={styles.row}>
-        <input
-          className={styles.textbox}
-          aria-label="Set increment amount"
-          value={incrementAmount}
-          onChange={(e) => setIncrementAmount(e.target.value)}
-        />
-        <button
-          className={styles.button}
-          onClick={() => dispatch(incrementByAmount(incrementValue))}
-        >
-          Add Amount
-        </button>
-        <button
-          className={styles.asyncButton}
-          onClick={() => dispatch(incrementAsync(incrementValue))}
-        >
-          Add Async
-        </button>
-        <button
-          className={styles.button}
-          onClick={() => dispatch(incrementIfOdd(incrementValue))}
-        >
-          Add If Odd
-        </button>
-      </div>
-    </div>
-  );
+    );
+  }
 }
+
+const mapStateToProps = (state) => {
+  return state
+};
+
+//Conexión React/Redux
+export const Container = connect(mapStateToProps)(Markdown);
